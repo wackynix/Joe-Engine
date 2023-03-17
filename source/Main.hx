@@ -1,5 +1,6 @@
 package;
 
+import openfl.text.TextFormat;
 import flixel.graphics.FlxGraphic;
 import flixel.FlxG;
 import flixel.FlxGame;
