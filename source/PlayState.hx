@@ -3304,7 +3304,7 @@ class PlayState extends MusicBeatState
 		chartingMode = true;
 
 		#if desktop
-		DiscordClient.changePresence("Chart Editor", null, null, true);
+		DiscordClient.changePresence("Charting a song", null, null, true);
 		#end
 	}
 
