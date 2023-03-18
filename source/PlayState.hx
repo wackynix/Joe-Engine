@@ -298,6 +298,10 @@ class PlayState extends MusicBeatState
 	var detailsPausedText:String = "";
 	#end
 
+	// Hitsound shit
+	var selectedhitsoundpack:String = ClientPrefs.hitsoundPack.toLowerCase();
+	var hitsoundamount:Array<String> = [];
+
 	//Achievement shit
 	var keysPressed:Array<Bool> = [];
 	var boyfriendIdleTime:Float = 0.0;
@@ -331,6 +335,8 @@ class PlayState extends MusicBeatState
 		//trace('Playback Rate: ' + playbackRate);
 		Paths.clearStoredMemory();
 
+		hitsoundamount = []; // Reset to default to prevent the game from thinking theres more hitsounds than there actually is
+
 		// for lua
 		instance = this;
 
@@ -352,6 +358,22 @@ class PlayState extends MusicBeatState
 			'NOTE_UP',
 			'NOTE_RIGHT'
 		];
+
+		#if MODS_ALLOWED
+		var directories:Array<String> = [Paths.mods('sounds/hitsounds/' + selectedhitsoundpack), Paths.hitsound(selectedhitsoundpack)];
+		for (i in 0...directories.length) {
+			var directory:String = directories[i];
+			if(FileSystem.exists(directory)) {
+				for (file in FileSystem.readDirectory(directory)) {
+					var path = haxe.io.Path.join([directory, file]);
+					if (!FileSystem.isDirectory(path) && file.startsWith('hitsound') && file.endsWith('.ogg') && file != 'hitsound0.ogg') {
+						var fileToCheck:String = file.substr(0, file.length - 4);
+						hitsoundamount.push(fileToCheck);
+					}
+				}
+			}
+		}
+		#end
 
 		//Ratings
 		ratingsData.push(new Rating('sick')); //default rating
@@ -1300,7 +1322,13 @@ class PlayState extends MusicBeatState
 		RecalculateRating();
 
 		//PRECACHING MISS SOUNDS BECAUSE I THINK THEY CAN LAG PEOPLE AND FUCK THEM UP IDK HOW HAXE WORKS
-		if(ClientPrefs.hitsoundVolume > 0) precacheList.set('hitsound', 'sound');
+		if(ClientPrefs.hitsoundVolume > 0) {
+			for (i in 0...hitsoundamount.length) {
+				{
+					precacheList.set('hitsounds/' + selectedhitsoundpack + '/hitsound' + (i + 1), 'sound');
+				}	
+			}
+		}	
 		precacheList.set('missnote1', 'sound');
 		precacheList.set('missnote2', 'sound');
 		precacheList.set('missnote3', 'sound');
@@ -4593,15 +4621,22 @@ class PlayState extends MusicBeatState
 		}
 	}
 
+	function playHitSound() {
+		if(ClientPrefs.hitsoundVolume > 0) 
+		{
+			FlxG.sound.play(Paths.hitsoundRandom(selectedhitsoundpack + '/hitsound', 1, hitsoundamount.length), ClientPrefs.hitsoundVolume);
+		}	
+	}
+
 	function goodNoteHit(note:Note):Void
 	{
 		if (!note.wasGoodHit)
 		{
 			if(cpuControlled && (note.ignoreNote || note.hitCausesMiss)) return;
 
-			if (ClientPrefs.hitsoundVolume > 0 && !note.hitsoundDisabled)
+			if (!note.hitsoundDisabled)
 			{
-				FlxG.sound.play(Paths.sound('hitsound'), ClientPrefs.hitsoundVolume);
+				playHitSound();
 			}
 
 			if(note.hitCausesMiss) {

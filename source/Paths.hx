@@ -45,6 +45,7 @@ class Paths
 		'stages',
 		'weeks',
 		'fonts',
+		'hitsounds',
 		'scripts',
 		'achievements'
 	];
@@ -207,9 +208,29 @@ class Paths
 		return sound;
 	}
 
+	inline static public function hitsound(key:String, ?key2:String = null)
+	{
+		var hitsound:String = '';
+		if (key2 != null)
+		{
+			hitsound = 'assets/shared/sounds/hitsounds/' + key + '/' + key2;
+		}
+		else
+		{
+			hitsound = 'assets/shared/sounds/hitsounds/' + key + '/';
+		}		
+		return hitsound;
+	}
+
 	inline static public function soundRandom(key:String, min:Int, max:Int, ?library:String)
 	{
 		return sound(key + FlxG.random.int(min, max), library);
+	}
+
+	inline static public function hitsoundRandom(key:String, min:Int, max:Int, ?library:String)
+	{
+		var sound:Sound = returnSound('sounds/hitsounds', key + FlxG.random.int(min, max), library);
+		return sound;
 	}
 
 	inline static public function music(key:String, ?library:String):Sound

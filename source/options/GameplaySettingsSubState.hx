@@ -34,6 +34,8 @@ class GameplaySettingsSubState extends BaseOptionsMenu
 		title = 'Gameplay Settings';
 		rpcTitle = 'Gameplay Settings Menu'; //for Discord Rich Presence
 
+		HitSoundPack.checkhitsoundpacks();
+
 		var option:Option = new Option('Controller Mode',
 			'Check this if you want to play with\na controller instead of using your Keyboard.',
 			'controllerMode',
@@ -89,6 +91,14 @@ class GameplaySettingsSubState extends BaseOptionsMenu
 		option.changeValue = 0.1;
 		option.decimals = 1;
 		option.onChange = onChangeHitsoundVolume;
+
+		var option:Option = new Option('Hitsound Pack:',
+		"The selected hitsound pack.",
+		'hitsoundPack',
+		'string',
+		'Default',
+		HitSoundPack.hitsoundsformatted);
+	    addOption(option);
 
 		var option:Option = new Option('Rating Offset',
 			'Changes how late/early you have to hit for a "Sick!"\nHigher values mean you have to hit later.',
@@ -150,6 +160,6 @@ class GameplaySettingsSubState extends BaseOptionsMenu
 
 	function onChangeHitsoundVolume()
 	{
-		FlxG.sound.play(Paths.sound('hitsound'), ClientPrefs.hitsoundVolume);
+		FlxG.sound.play(Paths.hitsoundRandom(ClientPrefs.hitsoundPack.toLowerCase() + '/hitsound', 1, 1), ClientPrefs.hitsoundVolume);
 	}
 }
